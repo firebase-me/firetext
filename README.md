@@ -27,7 +27,7 @@ Runtime Opts allows you to configure the runtime operations, these are by defaul
 to help with large collections
 
 All callbacks require the return value to be true, throw an error or return false will reject the function.
-both Callback methods will be bundled in the same method so you can test them together. I just forgot about it until now.
+Both Callback methods will be bundled in the same method so you can test them together. I just forgot about it until now.
 Currently there is no way to prevent overwriting any updates that may be queued while this process is working
 Also, the process is limited to one document per field at the moment.
 I would like to look into Batching the requests and paginating them as well as a timeout callback.

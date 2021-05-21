@@ -1,4 +1,5 @@
 ***vAlpha 0.1***
+
 **FIRETEXT** is a Firestore based Index table for text queries and is an experimental concept
 This is the server side module which creates an index table using an array of strings and `SMAZ` text compression
 Each index is in two parts, the compressed string and the document ID with a `:` seperator

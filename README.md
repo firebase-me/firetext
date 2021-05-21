@@ -1,6 +1,6 @@
 
 **FIRETEXT** is a Firestore based Index table for text queries and is an experimental concept
-The this is the server side module which creates an index table using an array of strings and smar text compression
+This is the server side module which creates an index table using an array of strings and `SMAZ` text compression
 Each index is in two parts, the compressed string and the document ID with a `:` seperator
 
 To decode this correctly, you will need to uncompress the string, this feature will be in a client based module in the very near future.

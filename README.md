@@ -1,50 +1,17 @@
 ***vAlpha 0.1***
 
-**FIRETEXT** is a Firestore based Index table for text queries and is an experimental concept
-This is the server side module which creates an index table using an array of strings and `SMAZ` text compression
-Each index is in two parts, the compressed string and the document ID with a `:` seperator
+**FIRETEXT** is a Firestore based index table for text based queries and is an experimental concept.
+Most use cases, users are not interested in searching for multiple items AND text - these functions are normally independant from each other. such as searching for movie titles, short descriptions, etc.
 
-To decode this correctly, you will need to uncompress the string, this feature will be in a client based module in the very near future.
+This is achieved by compressing the string using `SMAZ` text compression which is ideal for short strings that are under 100 characters with an average of 50% compression. Caveats with this compression methods are that numbers do not compress well. Since the focus is on strings, this is a small and most likely unseen problem.
 
-In your cloud functions, you must export the onUpdate trigger so Functions is able to capture it
-
-*if you know how to make this an npm package, let me know*
-
-```javascript
-import FireText from 'firetext-functions';
-```
-```javascript
-export.updateMyTextSearch = FireText.UpdateRecord(collectionPath: string, pathToField: string)
-```
-
-**Notes**
-CollectionPath is the string path from the root of your collection to the collection of documents you want to monitor
-- PathToField is a string path that is the field name to the value you want to monitor using dot notation "posts.title"
-
-- Currently Collection Groups are not supported, multiple fields with wild cards are not supported "posts.{id}.title"
+To further optimize the compression, all strings are converted to lower case, and in the future, we will look at removing special characters to speed up text searching, such as `'-|/,.*&` etc. while human readable, only impeede searching against a user input field.
+Multi-language is also supported, but they do not compress as well as English.
 
 
-In your cloud functions, you must export the onUpdate trigger so Functions is able to capture it
-```javascript
-export.HardResetIndex = FireText.ForceReset(
-  collectionPath: string,
-  pathToField: string,
-  validation: (arg0: functions.https.CallableContext) => Promise<boolean>,
-  contextCallback: (arg0: functions.https.CallableContext) => Promise<boolean>,
-  runtimeOpts?: functions.RuntimeOptions)
-```
-  
-- CollectionPath is the string path from the root of your collection to the collection of documents you want to monitor
-- PathToField is a string path that is the field name to the value you want to monitor using dot notation "posts.title"
-- DataCallback is a callback where you can debug the payload from the user, say if you have password projection, etc
-- ContextCallback is a callback with all the standard context parameters from onCall, allowing you to verify the user is valid
-- Runtime Opts allows you to configure the runtime operations, these are by default, maxed out to 560 seconds and 8GB 
-to help with large collections
 
-**Notes:**
-All callbacks require the return value to be true, throw an error or return false will reject the function.
-Both Callback methods will be bundled in the same method so you can test them together. I just forgot about it until now.
-Currently there is no way to prevent overwriting any updates that may be queued while this process is working
-Also, the process is limited to one document per field at the moment.
-I would like to look into Batching the requests and paginating them as well as a timeout callback.
+https://discord.firebase.me/
 
+Firebase Developers
+
+Firebase Me Program

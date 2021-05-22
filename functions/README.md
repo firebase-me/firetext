@@ -1,9 +1,12 @@
 ***vAlpha 0.1***
 PLEASE TEST AND GIVE FEEDBACK
 
-**FIRETEXT** is a Firestore based Index table for text based queries and is an experimental concept
-The this is the server side module which creates an index table using an array of strings and smar text compression
-This is the Cloud Function module that triggers with onUpdate() 
+**FIRETEXT** is a Firestore based index table for text based queries and is an experimental concept
+This is the Cloud Function module that triggers with `onUpdate()`
+
+Client version, please look at https://www.npmjs.com/package/@firebase-me/firetext
+
+
 Simply import or require the module as prefered.
 ```javascript
 import FireText from 'firetext-functions';

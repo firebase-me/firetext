@@ -1,5 +1,16 @@
 {
-  "name": "functions",
+  "name": "@firebase-me/firetext-functions",
+  "version": "0.0.1-beta.0",
+  "description": "Firebase Firestore Text Search Indexer",
+  "keywords": [
+    "firebase",
+    "firestore",
+    "text",
+    "search",
+    "textsearch"
+  ],
+  "author": "digimbyte",
+  "license": "ISC",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc",

@@ -1,7 +1,7 @@
 {
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
-  "files": ["lib/"],
+  "files": ["lib/", "README.md"],
   "name": "@firebase-me/firetext-functions",
   "version": "0.0.1-beta.0",
   "description": "Firebase Firestore Text Search Indexer",

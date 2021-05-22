@@ -48,5 +48,3 @@ Currently there is no way to prevent overwriting any updates that may be queued 
 Also, the process is limited to one document per field at the moment.
 I would like to look into Batching the requests and paginating them as well as a timeout callback.
 
-
-*Also, Hello Puf, notice us!*

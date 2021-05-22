@@ -4,12 +4,57 @@ import { compress } from "@remusao/smaz";
 
 function getFieldValue(path: string, data: { [x: string]: any }) {
   return compress(
-    (
-      path.split(".").reduce((o, i) => o[i], data) as unknown as string
+    ( // "path.to.field" -> ["path", "to", "field"] -> Value 
+    // TODO: check for string value or reject
+    // TODO: Impliment wild cards
+      path.split('.').reduce((o, i) => o[i], data) as unknown as string
     ).toLowerCase()
   );
 }
-const ForceReset = (
+const SoftReset = (
+  collectionPath: string,
+  pathToField: string,
+  dataCallback: (arg0: functions.https.CallableContext) => Promise<boolean>,
+  contextCallback: (arg0: functions.https.CallableContext) => Promise<boolean>,
+  runtimeOpts?: functions.RuntimeOptions
+) => {
+  // add trigger to resume if timeout?
+  // FIXME: Need to soft merge the index so only new entries are added/recalculated 
+  functions
+    .runWith({
+      timeoutSeconds: runtimeOpts?.timeoutSeconds || 590,
+      memory: runtimeOpts?.memory || "8GB",
+    })
+    .https.onCall((data, context) => {
+      return new Promise(async (resolve, reject) => {
+        const body = (await dataCallback(data).catch((err) => err)) || false;
+        const auth =
+          (await contextCallback(context).catch((err) => err)) || false;
+        if (auth && body) resolve("Processing Request");
+        else return reject("Invalid Auth");
+
+        firestore()
+          .collection(collectionPath)
+          .get()
+          .then((Snapshot) => {
+            const result: string[] = [];
+            Snapshot.forEach((doc) => {
+              result.push(
+                [getFieldValue(pathToField, doc.data()), doc.id].join(":")
+              );
+            });
+
+            firestore()
+              .collection("textIndex")
+              .doc([collectionPath, pathToField].join(":"))
+              .set({ index: result });
+          });
+      });
+    });
+};
+
+
+const HardRebuild = (
   collectionPath: string,
   pathToField: string,
   dataCallback: (arg0: functions.https.CallableContext) => Promise<boolean>,
@@ -115,4 +160,8 @@ const UpdateRecord = (collectionPath: string, pathToField: string) => {
     });
 };
 
-export default { UpdateRecord, ForceReset };
+export default { 
+  UpdateRecord, 
+  HardRebuild, 
+  //SoftReset 
+};

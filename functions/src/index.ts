@@ -63,7 +63,7 @@ const HardRebuild = (
       timeoutSeconds: runtimeOpts?.timeoutSeconds || 590,
       memory: runtimeOpts?.memory || "8GB",
     })
-    .https.onCall((data: any, context: any) => {
+    .https.onCall((data, context) => {
       return new Promise(async (resolve, reject) => {
         const verified =(await authCallback( data, context).catch((err) => err)) || false;
         if (verified) resolve("Processing Request");
@@ -72,9 +72,9 @@ const HardRebuild = (
         firestore()
           .collection(collectionPath)
           .get()
-          .then((Snapshot: { docs: any[]; }) => {
+          .then((Snapshot) => {
             const result: string[] = [];
-            Snapshot.docs.forEach((doc: { data: () => { [x: string]: any; }; id: any; }) => {
+            Snapshot.forEach((doc) => {
               result.push(
                 [getFieldValue(pathToField, doc.data()), doc.id].join(":")
               );
@@ -92,7 +92,7 @@ const HardRebuild = (
 const UpdateRecord = (collectionPath: string, pathToField: string) => {
   return functions.firestore
     .document(collectionPath + "/{docID}")
-    .onUpdate((change,context) => {
+    .onUpdate((change, context) => {
       const oldData = change.before.data();
       const newData = change.after.data();
 
@@ -154,6 +154,8 @@ const UpdateRecord = (collectionPath: string, pathToField: string) => {
     });
 };
 
+
+// FIXME: Break functions into independant files while also referencing getFieldVariables
 export default {
   UpdateRecord,
   HardRebuild,

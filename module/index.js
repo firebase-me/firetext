@@ -1,5 +1,5 @@
 import firebase from 'firebase';
-import smaz from '@remusao/smaz';
+import {decode} from '@remusao/smaz';
 
 let AppReference;
 let IndexTable = {};
@@ -57,9 +57,8 @@ async function decodeData() {
 }
 
 const find = (collection, fieldPath, query) => {
-    let QueryArray = query.split(new RegExp(' +', 'g')).filter(Boolean)
-    // .some(v => str)
-    return IndexTable[collection][fieldPath].filter(entry => entry.value)
+    let QueryArray = query.toLowerCase().split(new RegExp(' +', 'g')).filter(Boolean)
+    return IndexTable[collection][fieldPath].filter(entry => QueryArray.some(v => entry.value.includes(v)))
 };
 
 export default { find, initiate }

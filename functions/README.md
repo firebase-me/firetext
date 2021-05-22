@@ -7,9 +7,12 @@ This is the Cloud Function module that triggers with onUpdate()
 Simply import or require the module as prefered.
 ```javascript
 import FireText from 'firetext-functions';
-const FireText = require('firetext-functions';
+const FireText = require('firetext-functions');
 ```
-**All exports are built on `onCall` methods.**
+
+
+**All exports are built on Firebase `https.onCall` methods.**
+
 Then you export it with some configuration parameters
 ```javascript
 export.updateMyText = FireText.UpdateRecord("Path/{To}/Collection", "Path.To.Field");
@@ -41,6 +44,10 @@ Currently there is no way to prevent overwriting any updates that may be queued 
 Also, the process is limited to one document per field at the moment.
 I would like to look into Batching the requests and paginating them as well as a timeout callback
 
+
+
 https://discord.firebase.me/
+
 Firebase Developers
+
 Firebase Me Program

@@ -1,9 +1,12 @@
 {
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
-  "files": ["lib/", "README.md"],
+  "files": [
+    "lib/",
+    "README.md"
+  ],
   "name": "@firebase-me/firetext-functions",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.2",
   "description": "Firebase Firestore Text Search Indexer",
   "keywords": [
     "firebase",
@@ -23,7 +26,7 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "tsc": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
-    "prepublishOnly":"npm run tsc"
+    "prepublishOnly": "npm run tsc"
   },
   "engines": {
     "node": "12"
@@ -41,5 +44,13 @@
     "firebase-functions-test": "^0.2.0",
     "typescript": "^3.8.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/firebase-me/firetext.git"
+  },
+  "bugs": {
+    "url": "https://github.com/firebase-me/firetext/issues"
+  },
+  "homepage": "https://github.com/firebase-me/firetext",
   "private": false
 }

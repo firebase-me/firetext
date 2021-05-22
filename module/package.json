@@ -1,4 +1,10 @@
 {
+  "main": "index.js",
+  "module": "./lib/esm/index.js",
+  "files": [
+    "lib/",
+    "README.md"
+  ],
   "name": "@firebase-me/firetext",
   "version": "0.0.1-beta.0",
   "description": "Firebase Firestore Text Search",
@@ -11,7 +17,6 @@
   ],
   "author": "digimbyte",
   "license": "ISC",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/firebase-me/firetext/issues"
   },
-  "homepage": "https://github.com/firebase-me/firetext#readme",
+  "homepage": "https://github.com/firebase-me/firetext",
   "dependencies": {
     "@remusao/smaz": "^1.9.1",
     "firebase": "^9.0.0-beta.1"

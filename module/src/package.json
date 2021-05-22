@@ -1,0 +1,29 @@
+{
+  "name": "firetext",
+  "version": "0.0.1",
+  "description": "Firebase text search",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/firebase-me/firetext.git"
+  },
+  "keywords": [
+    "firebase",
+    "firestore",
+    "text",
+    "search",
+    "textsearch"
+  ],
+  "author": "digimbyte",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/firebase-me/firetext/issues"
+  },
+  "homepage": "https://github.com/firebase-me/firetext#readme",
+  "dependencies": {
+    "firebase": "^9.0.0-beta.1"
+  }
+}

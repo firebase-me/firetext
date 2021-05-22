@@ -1,4 +1,6 @@
 ***vAlpha 0.1***
+PLEASE TEST, BREAK, GIVE FEEDBACK, AND BUG TEST.
+
 
 **FIRETEXT** is a Firestore based index table for text based queries and is an experimental concept.
 Most use cases, users are not interested in searching for multiple items AND text - these functions are normally independant from each other. such as searching for movie titles, short descriptions, etc.

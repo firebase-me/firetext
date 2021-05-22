@@ -29,7 +29,7 @@ In your cloud functions, you must export the onUpdate trigger so Functions is ab
 export.HardResetIndex = FireText.ForceReset(
   collectionPath: string,
   pathToField: string,
-  dataCallback: (arg0: functions.https.CallableContext) => Promise<boolean>,
+  validation: (arg0: functions.https.CallableContext) => Promise<boolean>,
   contextCallback: (arg0: functions.https.CallableContext) => Promise<boolean>,
   runtimeOpts?: functions.RuntimeOptions)
 ```

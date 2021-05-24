@@ -5,7 +5,7 @@ let AppReference;
 let IndexTable = {};
 let indexSnapshot = [];
 
-const initiate = (appName, preferCache) => {
+const initiate = (preferCache,appName = null) => {
     AppReference = firebase.app(appName || undefined).catch(err => error = err);
     if (error) return error;
     return refresh(preferCache);
@@ -13,7 +13,7 @@ const initiate = (appName, preferCache) => {
 
 const refresh = (preferCache) => {
     new Promise((resolve, reject) => {
-        const indexRef = FirebaseReference.firestore().collection("textIndex");
+        const indexRef = AppReference.firestore().collection("textIndex");
         if (!!preferCache)
             indexSnapshot = await indexRef.get({ source: 'cache' }).catch(e => reject(e));
         if (!preferCache || !sourceSnapshot.exists) {

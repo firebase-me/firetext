@@ -1,60 +1,143 @@
+/* eslint-disable no-async-promise-executor */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable object-curly-spacing */
+/* eslint-disable curly */
+/* eslint-disable indent */
+/* eslint-disable max-len */
+/* eslint-disable require-jsdoc */
 import * as functions from "firebase-functions";
-import { firestore } from "firebase-admin";
-import { compress } from "@remusao/smaz";
+import * as admin from "firebase-admin";
+// import FireText from "@firebase-me/firetext-functions";
+// import { compress, decompress } from "@remusao/smaz";
 
+// import lzwcompress from "lzwcompress";
+// import * as lzutf8 from "lzutf8";
+import * as dot from "dot-wild";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getFieldValue(path: string, data: { [x: string]: any }) {
-  return compress(
-    (
-      // "path.to.field" -> ["path", "to", "field"] -> Value
-      // TODO: check for string value or reject
-      // TODO: Impliment wild cards
-      path.split(".").reduce((o, i) => o[i], data) as unknown as string
-    ).toLowerCase()
-  );
+  let value = dot.get(data, path.replace(new RegExp("{.*?}", "g"), "*"));
+  if (Array.isArray(value))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value = value.filter((item: any) => typeof item === "string").join(":");
+  //   if( typeof value === "string")
+  //   TypeError: value.filter is not a function
+  //     at getFieldValue (/workspace/lib/index.js:16:19)
+  // => ['tsuyoshiwada', 'sampleuser', 'foobarbaz']
+  return value ? value.trim().toLowerCase() : null;
+  // "path.to.field" -> ["path", "to", "field"] -> Value
+  // TODO: check for string value or reject
+  // TODO: Impliment wild cards
 }
-// const SoftReset = (
-//   collectionPath: string,
-//   pathToField: string,
-//   authCallback: (arg0: any,arg1: functions.https.CallableContext) => Promise<boolean>,
-//   runtimeOpts?: functions.RuntimeOptions
-// ) => {
-//   // add trigger to resume if timeout?
-//   // FIXME: Need to soft merge the index so only new entries are added/recalculated
-//   functions
-//     .runWith({
-//       timeoutSeconds: runtimeOpts?.timeoutSeconds || 590,
-//       memory: runtimeOpts?.memory || "8GB",
-//     })
-//     .https.onCall((data, context) => {
-//       return new Promise(async (resolve, reject) => {
-//         const verified =(await authCallback( data, context).catch((err) => err)) || false;
-//         if (verified) resolve("Processing Request");
-//         else return reject("Invalid Auth");
+// https://gist.github.com/daniellwdb/a7000d31ec89436f4d4e4cf68ea88f0b
 
-//         firestore()
-//           .collection(collectionPath)
-//           .get()
-//           .then((Snapshot) => {
-//             const result: string[] = [];
-//             Snapshot.forEach((doc) => {
-//               result.push(
-//                 [getFieldValue(pathToField, doc.data()), doc.id].join(":")
-//               );
-//             });
-
-//             firestore()
-//               .collection("textIndex")
-//               .doc([collectionPath, pathToField].join(":"))
-//               .set({ index: result });
-//           });
-//       });
-//     });
+const zip = (input: string) => {
+  return input;
+};
+// const unzip = (input: string) => {
+//   return input;
 // };
 
-const HardRebuild = (
+const updateRecord = (collectionPath: string, pathToField: string) => {
+  if (admin.apps.length === 0) {
+    admin.initializeApp({});
+  }
+  return functions.firestore
+    .document(collectionPath + "/{docID}")
+    .onUpdate((change, context) => {
+      const oldData = change.before.data();
+      const newData = change.after.data();
+
+      const oldValue = getFieldValue(pathToField, oldData);
+      const newValue = getFieldValue(pathToField, newData);
+
+      console.log("UPDATE COLLECTION");
+      console.log("Collection Path", collectionPath);
+      const collectionCompile = collectionPath
+        .replace(new RegExp("[/]", "g"), "_")
+        .replace(new RegExp("{.*?}", "g"), "*");
+      const documentCompile = pathToField
+        .replace(new RegExp("[.]", "g"), "_")
+        .replace(new RegExp("{.*?}", "g"), "*");
+      console.log("Collection Path", collectionCompile);
+
+      if (newData && oldData) {
+        console.error("UPDATE TEXT");
+        // UPDATE
+        if (newData != oldData) {
+          admin
+            .firestore()
+            .collection("textIndex")
+            .doc([collectionCompile, documentCompile].join(":"))
+            .set(
+              {
+                index: admin.firestore.FieldValue.arrayRemove(
+                  [zip(oldValue), context.params.docID].join(":")
+                ),
+              },
+              { merge: true }
+            );
+        }
+
+        admin
+          .firestore()
+          .collection("textIndex")
+          .doc([collectionCompile, documentCompile].join(":"))
+          .set(
+            {
+              index: admin.firestore.FieldValue.arrayUnion(
+                [zip(newValue), context.params.docID].join(":")
+              ),
+            },
+            { merge: true }
+          );
+      } else if (!newData && oldData) {
+        console.error("CREATED TEXT");
+        // CREATED
+        admin
+          .firestore()
+          .collection("textIndex")
+          .doc([collectionCompile, documentCompile].join(":"))
+          .set(
+            {
+              index: admin.firestore.FieldValue.arrayUnion(
+                [zip(newValue), context.params.docID].join(":")
+              ),
+            },
+            { merge: true }
+          );
+      } else if (newData && !oldData) {
+        console.error("DELETED TEXT");
+        // DELETED
+        admin
+          .firestore()
+          .collection("textIndex")
+          .doc([collectionCompile, documentCompile].join("/"))
+          .set(
+            {
+              index: admin.firestore.FieldValue.arrayRemove(
+                [zip(oldValue), context.params.docID].join(":")
+              ),
+            },
+            { merge: true }
+          );
+      }
+      return;
+    });
+};
+// // Start writing Firebase Functions
+// // https://firebase.google.com/docs/functions/typescript
+//
+// export const helloWorld = functions.https.onRequest((request, response) => {
+//   functions.logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });
+
+
+const hardRebuild = (
   collectionPath: string,
   pathToField: string,
-  authCallback: (arg0: any,arg1: functions.https.CallableContext) => Promise<boolean>,
+  authCallback: (arg0: any, arg1: functions.https.CallableContext) => Promise<boolean>,
   runtimeOpts?: functions.RuntimeOptions
 ) => {
   // add trigger to resume if timeout?
@@ -67,9 +150,9 @@ const HardRebuild = (
       return new Promise(async (resolve, reject) => {
         const verified =(await authCallback( data, context).catch((err) => err)) || false;
         if (verified) resolve("Processing Request");
-        else return reject("Invalid Auth");
+        else return reject(new Error("Invalid Auth"));
 
-        firestore()
+        admin.firestore()
           .collection(collectionPath)
           .get()
           .then((Snapshot) => {
@@ -80,7 +163,7 @@ const HardRebuild = (
               );
             });
 
-            firestore()
+            admin.firestore()
               .collection("textIndex")
               .doc([collectionPath, pathToField].join(":"))
               .set({ index: result });
@@ -89,75 +172,16 @@ const HardRebuild = (
     });
 };
 
-const UpdateRecord = (collectionPath: string, pathToField: string) => {
-  return functions.firestore
-    .document(collectionPath + "/{docID}")
-    .onUpdate((change, context) => {
-      const oldData = change.before.data();
-      const newData = change.after.data();
 
-      const oldValue = getFieldValue(pathToField, oldData);
-      const newValue = getFieldValue(pathToField, newData);
-
-      if (newData && oldData) {
-        // UPDATE
-        firestore()
-          .collection("textIndex")
-          .doc([collectionPath, pathToField].join(":"))
-          .set(
-            {
-              index: firestore.FieldValue.arrayRemove(
-                [oldValue, context.params.docID].join(":")
-              ),
-            },
-            { merge: true }
-          );
-
-        firestore()
-          .collection("textIndex")
-          .doc([collectionPath, pathToField].join(":"))
-          .set(
-            {
-              index: firestore.FieldValue.arrayUnion(
-                [newValue, context.params.docID].join(":")
-              ),
-            },
-            { merge: true }
-          );
-      } else if (!newData && oldData) {
-        // CREATED
-        firestore()
-          .collection("textIndex")
-          .doc([collectionPath, pathToField].join(":"))
-          .set(
-            {
-              index: firestore.FieldValue.arrayUnion(
-                [newValue, context.params.docID].join(":")
-              ),
-            },
-            { merge: true }
-          );
-      } else if (newData && !oldData) {
-        // DELETED
-        firestore()
-          .collection("textIndex")
-          .doc([collectionPath, pathToField].join(":"))
-          .set(
-            {
-              index: firestore.FieldValue.arrayRemove(
-                [oldValue, context.params.docID].join(":")
-              ),
-            },
-            { merge: true }
-          );
-      }
-    });
-};
-
+export const updateTextSearch = updateRecord("users/{user_id}/posts", "title");
+export const updateWildSearch = updateRecord(
+  "users/{user_id}/posts",
+  "Meta.{name}"
+);
 
 // FIXME: Break functions into independant files while also referencing getFieldVariables
 export default {
-  UpdateRecord,
-  HardRebuild,
-  //SoftReset
+  updateRecord,
+  hardRebuild,
+  // SoftReset
 };

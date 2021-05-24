@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@remusao/smaz": "^1.9.1",
-    "firebase-admin": "^9.8.0"
-  }
-}

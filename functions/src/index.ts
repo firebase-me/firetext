@@ -51,8 +51,6 @@ const updateRecord = (collectionPath: string, pathToField: string) => {
       const oldValue = getFieldValue(pathToField, oldData);
       const newValue = getFieldValue(pathToField, newData);
 
-      console.log("UPDATE COLLECTION");
-      console.log("Collection Path", collectionPath);
       const collectionCompile = collectionPath
         .replace(new RegExp("[/]", "g"), "_")
         .replace(new RegExp("{.*?}", "g"), "*");
@@ -62,7 +60,6 @@ const updateRecord = (collectionPath: string, pathToField: string) => {
       console.log("Collection Path", collectionCompile);
 
       if (newData && oldData) {
-        console.error("UPDATE TEXT");
         // UPDATE
         if (newData != oldData) {
           admin
@@ -92,7 +89,6 @@ const updateRecord = (collectionPath: string, pathToField: string) => {
             { merge: true }
           );
       } else if (!newData && oldData) {
-        console.error("CREATED TEXT");
         // CREATED
         admin
           .firestore()
@@ -107,7 +103,6 @@ const updateRecord = (collectionPath: string, pathToField: string) => {
             { merge: true }
           );
       } else if (newData && !oldData) {
-        console.error("DELETED TEXT");
         // DELETED
         admin
           .firestore()

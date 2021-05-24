@@ -7,12 +7,12 @@
 /* eslint-disable require-jsdoc */
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-// import FireText from "@firebase-me/firetext-functions";
-// import { compress, decompress } from "@remusao/smaz";
+import * as dot from "dot-wild";
 
+// POTENTIAL COMPRESSION PACKAGES
+// import { compress, decompress } from "@remusao/smaz";
 // import lzwcompress from "lzwcompress";
 // import * as lzutf8 from "lzutf8";
-import * as dot from "dot-wild";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getFieldValue(path: string, data: { [x: string]: any }) {
@@ -20,23 +20,13 @@ function getFieldValue(path: string, data: { [x: string]: any }) {
   if (Array.isArray(value))
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value = value.filter((item: any) => typeof item === "string").join(":");
-  //   if( typeof value === "string")
-  //   TypeError: value.filter is not a function
-  //     at getFieldValue (/workspace/lib/index.js:16:19)
-  // => ['tsuyoshiwada', 'sampleuser', 'foobarbaz']
   return value ? value.trim().toLowerCase() : null;
-  // "path.to.field" -> ["path", "to", "field"] -> Value
-  // TODO: check for string value or reject
-  // TODO: Impliment wild cards
 }
 // https://gist.github.com/daniellwdb/a7000d31ec89436f4d4e4cf68ea88f0b
 
 const zip = (input: string) => {
   return input;
 };
-// const unzip = (input: string) => {
-//   return input;
-// };
 
 const updateRecord = (collectionPath: string, pathToField: string) => {
   if (admin.apps.length === 0) {
@@ -120,63 +110,56 @@ const updateRecord = (collectionPath: string, pathToField: string) => {
       return;
     });
 };
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
 
 
-const hardRebuild = (
-  collectionPath: string,
-  pathToField: string,
-  authCallback: (arg0: any, arg1: functions.https.CallableContext) => Promise<boolean>,
-  runtimeOpts?: functions.RuntimeOptions
-) => {
-  // add trigger to resume if timeout?
-  functions
-    .runWith({
-      timeoutSeconds: runtimeOpts?.timeoutSeconds || 590,
-      memory: runtimeOpts?.memory || "8GB",
-    })
-    .https.onCall((data, context) => {
-      return new Promise(async (resolve, reject) => {
-        const verified =(await authCallback( data, context).catch((err) => err)) || false;
-        if (verified) resolve("Processing Request");
-        else return reject(new Error("Invalid Auth"));
+// const hardRebuild = (
+//   collectionPath: string,
+//   pathToField: string,
+//   authCallback: (arg0: any, arg1: functions.https.CallableContext) => Promise<boolean>,
+//   runtimeOpts?: functions.RuntimeOptions
+// ) => {
+//   // add trigger to resume if timeout?
+//   functions
+//     .runWith({
+//       timeoutSeconds: runtimeOpts?.timeoutSeconds || 590,
+//       memory: runtimeOpts?.memory || "8GB",
+//     })
+//     .https.onCall((data, context) => {
+//       return new Promise(async (resolve, reject) => {
+//         const verified =(await authCallback( data, context).catch((err) => err)) || false;
+//         if (verified) resolve("Processing Request");
+//         else return reject(new Error("Invalid Auth"));
 
-        admin.firestore()
-          .collection(collectionPath)
-          .get()
-          .then((Snapshot) => {
-            const result: string[] = [];
-            Snapshot.forEach((doc) => {
-              result.push(
-                [getFieldValue(pathToField, doc.data()), doc.id].join(":")
-              );
-            });
+//         admin.firestore()
+//           .collection(collectionPath)
+//           .get()
+//           .then((Snapshot) => {
+//             const result: string[] = [];
+//             Snapshot.forEach((doc) => {
+//               result.push(
+//                 [getFieldValue(pathToField, doc.data()), doc.id].join(":")
+//               );
+//             });
 
-            admin.firestore()
-              .collection("textIndex")
-              .doc([collectionPath, pathToField].join(":"))
-              .set({ index: result });
-          });
-      });
-    });
-};
+//             admin.firestore()
+//               .collection("textIndex")
+//               .doc([collectionPath, pathToField].join(":"))
+//               .set({ index: result });
+//           });
+//       });
+//     });
+// };
 
 
-export const updateTextSearch = updateRecord("users/{user_id}/posts", "title");
-export const updateWildSearch = updateRecord(
-  "users/{user_id}/posts",
-  "Meta.{name}"
-);
+// export const updateTextSearch = updateRecord("users/{user_id}/posts", "title");
+// export const updateWildSearch = updateRecord(
+//   "users/{user_id}/posts",
+//   "Meta.{name}"
+// );
 
 // FIXME: Break functions into independant files while also referencing getFieldVariables
 export default {
   updateRecord,
-  hardRebuild,
+  // hardRebuild,
   // SoftReset
 };

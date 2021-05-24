@@ -6,7 +6,7 @@
     "README.md"
   ],
   "name": "@firebase-me/firetext-functions",
-  "version": "0.0.2-beta.2",
+  "version": "0.0.2-beta.4",
   "description": "Firebase Firestore Text Search Indexer",
   "keywords": [
     "firebase",
